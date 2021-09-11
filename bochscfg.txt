@@ -1,0 +1,10 @@
+ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
+ata0-master: type=cdrom, path="cdrom.iso", status=inserted
+
+megs: 32
+romimage: file=/usr/share/bochs/BIOS-bochs-latest, address=0xf0000
+boot: c
+log: bochsout.txt
+mouse: enabled=0
+clock: sync=realtime
+

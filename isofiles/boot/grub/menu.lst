@@ -1,0 +1,7 @@
+default 0
+timeout 30
+root	(cd0)
+
+title Kernel with D
+kernel /boot/kernel.bin
+
