@@ -58,7 +58,7 @@ void InitializeTasking(uint stack)
 extern(C)
 void move_stack(uint old_stack_start, void *new_stack_start, uint size)
 {
-	char[20] buf; // !!!
+	__gshared char[20] buf; // !!!
 
 	/*printk(&default_console, "old_stack_start: ");
 	itoa(cast(char *) buf, 'x', old_stack_start);
