@@ -41,6 +41,7 @@ extern (C) void __assert(const(char)[] msg, const(char)[] filename, int line) {
 	printk(&default_console, ": ");
 	printk(&default_console, cast(string) msg);
 	printk(&default_console, "\n");
+	panic();
 }
 
 extern(C) void main(uint magic, uint addr, uint stack, uint heap)
