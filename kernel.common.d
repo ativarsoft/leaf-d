@@ -22,6 +22,7 @@ extern(C) {
     for ( ; len != 0; len--) *temp++ = val;
 }*/
 
+extern(C)
 void memset(void *dest, ubyte val, uint len)
 {
     ubyte *temp = cast(ubyte *)dest;
@@ -30,6 +31,7 @@ void memset(void *dest, ubyte val, uint len)
 	}
 }
 
+extern(C)
 void memcpy(void *dest, const void *src, uint len)
 {
     const(ubyte) *sp = cast(const(ubyte) *)src;

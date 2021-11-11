@@ -7,17 +7,16 @@ SECTIONS{
  
     .text :{
         code = .; _code = .; __code = .;
-        *(.text)
-        *(.rodata)
+        *(.text*)
     }
  
     .rodata ALIGN (0x1000) : {
-        *(.rodata)
+        *(.rodata*)
     }
  
     .data ALIGN (0x1000) : {
         data = .; _data = .; __data = .;
-        *(.data)
+        *(.data*)
         start_ctors = .; *(.ctors)   end_ctors = .;
         start_dtors = .; *(.dtors)   end_dtors = .;
     }
@@ -26,7 +25,7 @@ SECTIONS{
         sbss = .;
         bss = .; _bss = .; __bss = .;
         *(COMMON)
-        *(.bss)
+        *(.bss*)
         ebss = .;
     }
     end = .; _end = .; __end = .;
