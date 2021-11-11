@@ -1,3 +1,4 @@
+// Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.multiboot;
 
 static __gshared const uint MULTIBOOT_FLAG_MEM     = 0x001;

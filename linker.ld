@@ -1,3 +1,4 @@
+/* Copyright (C) 2021 Mateus de Lima Oliveira */
 OUTPUT_FORMAT(elf32-i386)
 ENTRY (start)
  

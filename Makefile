@@ -1,3 +1,4 @@
+# Copyright (C) 2021 Mateus de Lima Oliveira
 all: kernel.bin
 
 kernel.bin: start.asm kernel.main.d linker.ld v86.asm gdt.asm kernel.console.d kernel.gdt.d kernel.idt.d idt.asm kernel.isr.d kernel.common.d kernel.pit.d common.asm kernel.multiboot.d kernel.paging.d kernel.heap.d paging.asm kernel.orderedlist.d kernel.task.d kernel.memorystream.d task.asm kernel.tss.d kernel.syscall.d

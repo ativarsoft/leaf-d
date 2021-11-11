@@ -1,3 +1,4 @@
+; Copyright (C) 2021 Mateus de Lima Oliveira
 global start
 extern main        ; Allow main() to be called from the assembly code
 extern start_ctors, end_ctors, start_dtors, end_dtors

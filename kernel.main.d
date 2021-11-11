@@ -1,3 +1,4 @@
+// Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.main;
 import core.bitop; // will be core.volatile in later gdc
 import kernel.console;

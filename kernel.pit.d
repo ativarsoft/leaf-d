@@ -1,3 +1,4 @@
+// Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.pit;
 import kernel.console;
 import kernel.isr;

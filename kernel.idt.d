@@ -1,3 +1,4 @@
+// Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.idt;
 
 struct IDTDescr {

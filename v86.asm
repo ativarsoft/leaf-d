@@ -1,3 +1,4 @@
+; Copyright (C) 2021 Mateus de Lima Oliveira
 global enter_v86
 global detect_v86
 

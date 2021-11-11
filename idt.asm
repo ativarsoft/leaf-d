@@ -1,3 +1,4 @@
+; Copyright (C) 2021 Mateus de Lima Oliveira
 [bits 32]
 extern isrHandler
 global load_idt

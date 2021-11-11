@@ -1,3 +1,4 @@
+// Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.tss;
 import kernel.common;
 import kernel.gdt;
