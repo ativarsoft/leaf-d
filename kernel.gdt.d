@@ -22,7 +22,7 @@ struct GDTPointer {
 
 extern(C) void load_gdt(GDTPointer *p);
 
-static __gshared GDTEntry[5] gdt;
+static __gshared GDTEntry[6] gdt;
 static __gshared GDTPointer gdtPtr;
 
 @trusted void SetGDTGate
