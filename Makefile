@@ -7,7 +7,7 @@ FLAGS=--march=x86 --mcpu=i386
 
 all: kernel.bin
 
-kernel.bin: start.asm kernel.main.d linker.ld v86.asm gdt.asm kernel.console.d kernel.gdt.d kernel.idt.d idt.asm kernel.isr.d kernel.common.d kernel.pit.d common.asm kernel.multiboot.d kernel.paging.d kernel.heap.d paging.asm kernel.orderedlist.d kernel.task.d kernel.memorystream.d task.asm kernel.tss.d kernel.syscall.d
+kernel.bin: start.asm kernel.main.d linker.ld v86.asm gdt.asm kernel.console.d kernel.gdt.d kernel.idt.d idt.asm kernel.isr.d kernel.common.d kernel.pit.d common.asm kernel.multiboot.d kernel.paging.d kernel.heap.d paging.asm kernel.orderedlist.d kernel.task.d kernel.memorystream.d task.asm kernel.tss.d kernel.syscall.d kernel.init.d
 	nasm -f elf -o start.o start.asm
 	nasm -f elf -o v86.o v86.asm
 	nasm -f elf -o gdt.o gdt.asm
@@ -17,8 +17,8 @@ kernel.bin: start.asm kernel.main.d linker.ld v86.asm gdt.asm kernel.console.d k
 	nasm -f elf -o task.o task.asm
 	#gdc -fno-exceptions -fno-moduleinfo -nophoboslib -m32 -c kernel.main.d -o kernel.main.o -g
 	# removed stack stomp
-	$(DLANG) $(FLAGS) -betterC -c kernel.main.d kernel.console.d kernel.gdt.d kernel.idt.d kernel.isr.d kernel.common.d kernel.pit.d kernel.multiboot.d kernel.paging.d kernel.heap.d kernel.orderedlist.d kernel.task.d kernel.memorystream.d kernel.tss.d kernel.syscall.d -g
-	ld -melf_i386 -T linker.ld -o kernel.bin start.o kernel.main.o kernel.console.o kernel.gdt.o kernel.idt.o v86.o gdt.o idt.o kernel.isr.o kernel.common.o kernel.pit.o common.o kernel.multiboot.o kernel.paging.o kernel.heap.o paging.o kernel.orderedlist.o kernel.task.o kernel.memorystream.o task.o kernel.tss.o kernel.syscall.o
+	$(DLANG) $(FLAGS) -betterC -c kernel.main.d kernel.console.d kernel.gdt.d kernel.idt.d kernel.isr.d kernel.common.d kernel.pit.d kernel.multiboot.d kernel.paging.d kernel.heap.d kernel.orderedlist.d kernel.task.d kernel.memorystream.d kernel.tss.d kernel.syscall.d kernel.init.d -g
+	ld -melf_i386 -T linker.ld -o kernel.bin start.o kernel.main.o kernel.console.o kernel.gdt.o kernel.idt.o v86.o gdt.o idt.o kernel.isr.o kernel.common.o kernel.pit.o common.o kernel.multiboot.o kernel.paging.o kernel.heap.o paging.o kernel.orderedlist.o kernel.task.o kernel.memorystream.o task.o kernel.tss.o kernel.syscall.o kernel.init.o
 
 cdrom.iso: kernel.bin
 	cp $^ isofiles/boot
