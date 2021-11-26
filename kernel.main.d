@@ -55,18 +55,18 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 		printk(&default_console, "Address is not 64-bit aligned.");
 		panic();
 	}
-	
+
 	char[20] buf;
-	
+
 	kernel.heap.heap = heap;
-	
+
 	printk(&default_console, "end: ");
-    itoa(cast(char *) buf, 'x', cast(uint) heap);
+	itoa(cast(char *) buf, 'x', cast(uint) heap);
 	printk(&default_console, cast(string) buf);
 	printk(&default_console, "             \n");
-	
+
 	//panic();
-	
+
 	//if (cast(uint) addr & )
 	string local = "local\n";
 	//cons default_console = {0, 0, 80, 25, (cast(ubyte*)0xFFFF_8000_000B_8000)[0..80*25*2]};
@@ -81,16 +81,16 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	test_char = 'A';
 	vidmem[79 * 2] = test_char & 0xFF;
 	vidmem[79 * 2 + 1] = 0x07;
-	
+
 	//char[20] buf;
 	/*itoa(cast(char *) buf, 'd', cast(int) &default_console);
 	printk(&default_console, cast(string) buf);
 	printk(&default_console, "\n");
-	
+
 	itoa(cast(char *) buf, 'd', cast(int) &test_char);
 	printk(&default_console, cast(string) buf);
 	printk(&default_console, "\n");*/
-	
+
 	SetGDTGate(0, 0, 0, 0, 0);                //Null segment
 	SetGDTGate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF); //Code segment
 	SetGDTGate(2, 0, 0xFFFFFFFF, 0x92, 0xCF); //Data segment
@@ -102,29 +102,29 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	gdtPtr.base = cast(uint) &gdt;
 	load_gdt(&gdtPtr);
 	printk(&default_console, "GDT was set up successfully.\n");
-	
+
 	// Remap PIC
 	WritePortByte(0x20, 0x11);
-    WritePortByte(0xA0, 0x11);
-    WritePortByte(0x21, 0x20);
-    WritePortByte(0xA1, 0x28);
-    WritePortByte(0x21, 0x04);
-    WritePortByte(0xA1, 0x02);
-    WritePortByte(0x21, 0x01);
-    WritePortByte(0xA1, 0x01);
-    WritePortByte(0x21, 0x0);
-    WritePortByte(0xA1, 0x0);
-    printk(&default_console, "PIC was remmaped successfully.\n");
-    
-    // Values too high freeze the emulator.
-    // Values too low prints the message too quickly.
-    //InitializeTimer(1193180);
+	WritePortByte(0xA0, 0x11);
+	WritePortByte(0x21, 0x20);
+	WritePortByte(0xA1, 0x28);
+	WritePortByte(0x21, 0x04);
+	WritePortByte(0xA1, 0x02);
+	WritePortByte(0x21, 0x01);
+	WritePortByte(0xA1, 0x01);
+	WritePortByte(0x21, 0x0);
+	WritePortByte(0xA1, 0x0);
+	printk(&default_console, "PIC was remmaped successfully.\n");
+
+	// Values too high freeze the emulator.
+	// Values too low prints the message too quickly.
+	//InitializeTimer(1193180);
 	//InitializeTimer(10);
 	printk(&default_console, "Enabled PIT.\n");
-    
+
 	// Initialize the uninitialized gates
 	memset(cast(ubyte *) idt, 0, IDTDescr.sizeof * 256);
-	
+
 	SetIDTGate(0, cast(uint) &isr0, 0x08, 0x8E);
 	SetIDTGate(1, cast(uint) &isr1, 0x08, 0x8E);
 	SetIDTGate(2, cast(uint) &isr2, 0x08, 0x8E);
@@ -157,7 +157,7 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	SetIDTGate(29, cast(uint) &isr29, 0x08, 0x8E);
 	SetIDTGate(30, cast(uint) &isr30, 0x08, 0x8E);
 	SetIDTGate(31, cast(uint) &isr31, 0x08, 0x8E);
-	
+
 	/* IRQs */
 	SetIDTGate(32, cast(uint) &isr32, 0x08, 0x8E);
 	SetIDTGate(33, cast(uint) &isr33, 0x08, 0x8E);
@@ -178,20 +178,20 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 
 	SetIDTGate(0x80, cast(uint) &isr128, 0x08, 0x8E);
 	RegisterInterruptHandler(0x80, &SyscallHandler);
-	
+
 	idtPtr.limit = (IDTDescr.sizeof * 255) - 1;
 	idtPtr.base = cast(uint) &idt;
 	load_idt(&idtPtr);
 	printk(&default_console, "IDT was set up successfully.\n");
-	
+
 	/*uint zero = 0;
 	uint division_by_zero = 1/zero;
 	printk(&default_console, "Returned from ISR.\n");*/
-	
+
 	// generate an exception
 	/*ubyte[] m = get_vidmem_slice(&default_console);
 	ubyte out_of_bounds = m[5000];*/
-	
+
 	InitializeHeap();
 	printk(&default_console, "Initialized heap.\n");
 	EnableInterrupts();
@@ -200,7 +200,7 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	printk(&default_console, "Enabled paging.\n");
 	/*InitializeHeap2();
 	printk(&default_console, "Initialized heap 2.\n");*/
-	
+
 	/*printk(&default_console, "Allocating first block.\n");
 	uint *a = cast(uint*) kmalloc(8);
 	*a = 0;
@@ -215,24 +215,24 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	uint *c = cast(uint *) kmalloc(12);
 	printk(&default_console, "Freeing third block.\n");
 	kfree(c);*/
-	
+
 	InitializeTasking(stack);
 	printk(&default_console, "Initialized the stack successfuly.\n");
-	
+
 	// Create a new process in a new address space which is a clone of this.
-    int ret = fork();
-    
+	int ret = fork();
+
 	printk(&default_console, "fork() returned ");
-    itoa(cast(char *) buf, 'd', ret);
+	itoa(cast(char *) buf, 'd', ret);
 	printk(&default_console, cast(string) buf);
-    printk(&default_console, ", and getpid() returned ");
-    itoa(cast(char *) buf, 'd', getpid());
+	printk(&default_console, ", and getpid() returned ");
+	itoa(cast(char *) buf, 'd', getpid());
 	printk(&default_console, cast(string) buf);
 	printk(&default_console, "\n");
-	
+
 	InitializeHeap2();
 	printk(&default_console, "Initialized heap 2.\n");
-	
+
 	printk(&default_console, "Allocating first block.\n");
 	uint *a = cast(uint*) kmalloc(4);
 	printk("a positon: ");
@@ -254,7 +254,7 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	kfree(c);
 
 	printk(&default_console, local);
-    
+
 	for (;;) {
 	}
 }
