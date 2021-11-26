@@ -11,7 +11,6 @@ load_idt:
 	; Test interrupts
 	int 3
 	int 4
-	int 32
 	ret
 
 EnableInterrupts:
