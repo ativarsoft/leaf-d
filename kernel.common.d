@@ -1,6 +1,7 @@
 // Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.common;
 import kernel.console;
+import kernel.idt;
 
 extern(C) {
 	@safe ubyte ReadPortByte(ushort portAddr);
@@ -68,6 +69,7 @@ void memcpy(void *dest, const void *src, uint len)
 
 @trusted void panic()
 {
+	DisableInterrupts();
 	printk(&default_console, "PANIC!");
 	for (;;) {
 	}
