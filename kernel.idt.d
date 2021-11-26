@@ -76,6 +76,8 @@ extern(C) {
 	void isr45();
 	void isr46();
 	void isr47();
+
+	void isr128();
 }
 
 void SetIDTGate(ubyte num, uint base, ushort selector, ubyte flags)

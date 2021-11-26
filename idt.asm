@@ -89,6 +89,9 @@ isr_noerror 45
 isr_noerror 46
 isr_noerror 47
 
+; syscall
+isr_noerror 128 ; 0x80
+
 isr_stub:
 	pusha ; Push All General-Purpose Registers
 	

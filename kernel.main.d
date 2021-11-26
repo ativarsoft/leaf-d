@@ -175,8 +175,9 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	SetIDTGate(45, cast(uint) &isr45, 0x08, 0x8E);
 	SetIDTGate(46, cast(uint) &isr46, 0x08, 0x8E);
 	SetIDTGate(47, cast(uint) &isr47, 0x08, 0x8E);
-	
-	RegisterInterruptHandler(80, &SyscallHandler);
+
+	SetIDTGate(0x80, cast(uint) &isr128, 0x08, 0x8E);
+	RegisterInterruptHandler(0x80, &SyscallHandler);
 	
 	idtPtr.limit = (IDTDescr.sizeof * 255) - 1;
 	idtPtr.base = cast(uint) &idt;
