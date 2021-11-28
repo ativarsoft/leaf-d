@@ -3,6 +3,7 @@ module kernel.pit;
 import kernel.console;
 import kernel.isr;
 import kernel.common;
+import kernel.task;
 
 static __gshared int ticks = 0;
 
@@ -14,6 +15,8 @@ void TimerCallback(ISRRegisters regs)
 	itoa(cast(char *) buf, 10, ticks);
 	printk(&default_console, cast(string) buf);
 	printk(&default_console, "\n");
+
+	SwitchTask(&regs);
 }
 
 void InitializeTimer(uint frequency)

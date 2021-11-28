@@ -36,7 +36,10 @@ struct TSSEntry
 	ushort iomap_base;
 }
 
-static __gshared TSSEntry tss_entry;
+extern(C) {
+	void LoadTSS();
+	static __gshared TSSEntry tss_entry;
+}
 
 // Initialise our task state segment structure.
 static void WriteTSS(int num, ushort ss0, uint esp0)

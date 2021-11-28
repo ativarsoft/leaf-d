@@ -5,24 +5,31 @@ import kernel.idt;
 import kernel.heap;
 import kernel.common;
 import kernel.console;
+import kernel.init;
+import kernel.tss;
+import kernel.isr;
 
 struct Task
 {
-    int id;                // Process ID.
-    uint esp, ebp;       // Stack and base pointers.
-    uint eip;            // Instruction pointer.
-    PageDirectory *page_directory; // Page directory.
-    Task *next;     // The next task in a linked list.
+	int id;                // Process ID.
+	uint eip;            // Instruction pointer.
+	uint edi, esi, ebp, esp, ebx, edx, ecx, eax;
+	PageDirectory *page_directory; // Page directory.
+	Task *next;     // The next task in a linked list.
 }
 
-// The currently running task.
-static __gshared Task *current_task;
+extern(C) {
+	void SwitchToUserMode(uint ebx, uint ecx, uint edx, uint esi, uint edi, uint ebp, uint eax, uint esp, uint eip);
 
-// The start of the task linked list.
-static __gshared Task *ready_queue;
+	// The currently running task.
+	static __gshared Task *current_task;
 
-// The next available process ID.
-static __gshared uint next_pid = 1;
+	// The start of the task linked list.
+	static __gshared Task *ready_queue;
+
+	// The next available process ID.
+	static __gshared uint next_pid = 1;
+}
 
 extern(C)
 void InitializeTasking(uint stack)
@@ -281,4 +288,93 @@ int fork()
 int getpid()
 {
     return current_task.id;
+}
+
+extern(C)
+void CreateInitProcess()
+{
+	DisableInterrupts();
+	Task *new_task = NewTask();
+
+	alloc_frame(getPage(0x02000000, 1, currentDirectory), 0 /* User mode */, 1 /* Is writable */ );
+
+	uint size = 2048;
+	//void *new_stack_start = kmalloc(size);
+	void *new_stack_start = cast(void *) 0x02000000;
+
+	// New user process stack
+	new_task.esp = new_task.ebp = cast(uint) new_stack_start + size;
+	new_task.eip = cast(uint) &init;
+	EnableInterrupts();
+}
+
+Task *NewTask()
+{
+	// Clone the address space.
+	PageDirectory *directory = clone_directory(currentDirectory);
+
+	// Create a new process.
+	Task *new_task = cast(Task*)kmalloc(Task.sizeof);
+
+	new_task.id = next_pid++;
+	new_task.esp = new_task.ebp = 0;
+	new_task.eip = 0;
+	new_task.page_directory = directory;
+	new_task.next = null;
+	
+	// Add it to the end of the ready queue.
+	assert(ready_queue != null);
+	Task *tmp_task = cast(Task*)ready_queue;
+	while (tmp_task.next != null)
+		tmp_task = tmp_task.next;
+	tmp_task.next = new_task;
+
+	return new_task;
+}
+
+extern(C)
+void SwitchTask(ISRRegisters *regs)
+{
+	char[20] buf; // !!!
+	
+	if (currentDirectory == null)
+		return;
+	
+	if (current_task == null)
+		return;
+		
+	if (current_task == ready_queue && current_task.next == null)
+		return;
+
+	current_task.eip = regs.eip;
+	current_task.esp = regs.esp;
+	current_task.ebp = regs.ebp;
+
+	current_task.edi = regs.edi;
+	current_task.esi = regs.esi;
+	current_task.ebx = regs.ebx;
+	current_task.edx = regs.edx;
+	current_task.ecx = regs.ecx;
+	current_task.eax = regs.eax;
+
+	// Get the next task to run.
+	current_task = current_task.next;
+	// If we fell off the end of the linked list start again at the beginning.
+	if (current_task == null)
+		current_task = ready_queue;
+
+	uint eip = current_task.eip;
+	uint esp = current_task.esp;
+	uint ebp = current_task.ebp;
+
+	uint edi = current_task.edi;
+	uint esi = current_task.esi;
+	//ebp;
+	//esp;
+	uint ebx = current_task.ebx;
+	uint edx = current_task.edx;
+	uint ecx = current_task.ecx;
+	uint eax = current_task.eax;
+
+	SwitchToUserMode(ebx, ecx, edx, esi, edi, ebp, eax, esp, eip);
 }

@@ -98,10 +98,12 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	SetGDTGate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); //User mode data segment
 	WriteTSS(5, 0x10, 0x0);
 
-	gdtPtr.limit = (GDTEntry.sizeof * 5) - 1;
+	gdtPtr.limit = (GDTEntry.sizeof * 6) - 1;
 	gdtPtr.base = cast(uint) &gdt;
 	load_gdt(&gdtPtr);
 	printk(&default_console, "GDT was set up successfully.\n");
+
+	LoadTSS();
 
 	// Remap PIC
 	WritePortByte(0x20, 0x11);
@@ -119,7 +121,7 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	// Values too high freeze the emulator.
 	// Values too low prints the message too quickly.
 	//InitializeTimer(1193180);
-	//InitializeTimer(10);
+	InitializeTimer(10);
 	printk(&default_console, "Enabled PIT.\n");
 
 	// Initialize the uninitialized gates
@@ -219,16 +221,7 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	InitializeTasking(stack);
 	printk(&default_console, "Initialized the stack successfuly.\n");
 
-	// Create a new process in a new address space which is a clone of this.
-	int ret = fork();
-
-	printk(&default_console, "fork() returned ");
-	itoa(cast(char *) buf, 'd', ret);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, ", and getpid() returned ");
-	itoa(cast(char *) buf, 'd', getpid());
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	CreateInitProcess();
 
 	InitializeHeap2();
 	printk(&default_console, "Initialized heap 2.\n");

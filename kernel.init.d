@@ -5,6 +5,5 @@ import kernel.common;
 extern(C)
 void init()
 {
-	for (;;)
-		printk("init");
+	for (;;) {}
 }

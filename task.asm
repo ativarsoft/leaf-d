@@ -3,27 +3,27 @@
 global SwitchToUserMode
 
 SwitchToUserMode:
-	cli
 	mov ax, 0x23
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
+
+	add esp, 4 
+	pop ebx
+	pop ecx
+	pop edx
+	pop esi
+	pop edi
+	pop ebp
+	pop eax
 	
-	mov eax, esp
 	push 0x23
-	push eax
+	push DWORD[esp + 0 + 4*1] ; esp
 	pushf
-
-	; re-enable interrupts after returning from user mode
-	pop eax ; Get EFLAGS back into EAX. The only way to read EFLAGS is to pushf then pop.
-	or eax, 0x200 ; Set the IF flag.
-	push eax ; Push the new EFLAGS value back onto the stack.
-
 	push 0x1B
-	push return_point
+	push DWORD[esp + 4 + 4*4] ; eip
 	iret
-return_point:
 
 global LoadTSS    ; Allows our C code to call tss_flush().
 LoadTSS:
