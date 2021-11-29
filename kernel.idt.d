@@ -22,9 +22,11 @@ extern(C) {
 	void DisableInterrupts();
 }
 
-//extern(C) extern __gshared IDTDescr[256] idt;
-static __gshared IDTDescr[256] idt;
-static __gshared IDTPointer idtPtr;
+extern(C) {
+	//extern(C) extern __gshared IDTDescr[256] idt;
+	static __gshared IDTDescr[256] idt;
+	static __gshared IDTPointer idtPtr;
+}
 
 extern(C) {
 	void isr0();
@@ -87,5 +89,5 @@ void SetIDTGate(ubyte num, uint base, ushort selector, ubyte flags)
 
 	idt[num].selector = selector;
 	idt[num].zero = 0;
-	idt[num].type_attr = flags;
+	idt[num].type_attr = flags | 0x60;
 }

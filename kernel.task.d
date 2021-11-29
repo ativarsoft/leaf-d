@@ -19,6 +19,9 @@ struct Task
 }
 
 extern(C) {
+	enum KERNEL_STACK_ADDRESS = 0xB0000000;
+	enum KERNEL_STACK_SIZE = 0x4000;
+
 	void SwitchToUserMode(uint ebx, uint ecx, uint edx, uint esi, uint edi, uint ebp, uint eax, uint esp, uint eip);
 
 	// The currently running task.
@@ -47,7 +50,7 @@ void InitializeTasking(uint stack)
     DisableInterrupts();
 
     // Relocate the stack so we know where it is.
-    move_stack(stack, cast(void*)0xB0000000, 0x4000); // !!!
+    move_stack(stack, cast(void*) KERNEL_STACK_ADDRESS, KERNEL_STACK_SIZE); // !!!
     printk(&default_console, "Stack copied successfully.\n");
 
     // Initialise the first task (kernel task)

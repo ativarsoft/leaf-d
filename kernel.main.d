@@ -96,7 +96,7 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	SetGDTGate(2, 0, 0xFFFFFFFF, 0x92, 0xCF); //Data segment
 	SetGDTGate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); //User mode code segment
 	SetGDTGate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); //User mode data segment
-	WriteTSS(5, 0x10, 0x0);
+	WriteTSS(5, 0x10, KERNEL_STACK_ADDRESS + KERNEL_STACK_SIZE);
 
 	gdtPtr.limit = (GDTEntry.sizeof * 6) - 1;
 	gdtPtr.base = cast(uint) &gdt;
