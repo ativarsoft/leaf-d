@@ -29,7 +29,7 @@ immutable void* horrible_hack = null; // D:*/
 /*extern (C) void __assert(bool cond, const(char)[] msg) {
 }*/
 
-extern (C) void __assert(const(char)[] msg, const(char)[] filename, int line) {
+extern (C) void __assert(const(char)[] filename, int line, const(char)[] msg) {
 	//cls(&default_console);
 	if (filename != null) {
 		printk(&default_console, cast(string) filename);
