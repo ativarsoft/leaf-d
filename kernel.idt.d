@@ -1,6 +1,7 @@
 // Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.idt;
 
+extern(C)
 struct IDTDescr {
 	align (1):
 	ushort offset_1; // offset bits 0..15
@@ -10,6 +11,7 @@ struct IDTDescr {
 	ushort offset_2; // offset bits 16..31
 };
 
+extern(C)
 struct IDTPointer {
 	align (1):
 	ushort limit;
@@ -17,9 +19,9 @@ struct IDTPointer {
 }
 
 extern(C) {
-	void load_idt(IDTPointer *p);
-	void EnableInterrupts();
-	void DisableInterrupts();
+	@safe void load_idt(scope IDTPointer *p);
+	@safe void EnableInterrupts();
+	@safe void DisableInterrupts();
 }
 
 extern(C) {
@@ -82,6 +84,7 @@ extern(C) {
 	void isr128();
 }
 
+extern(C)
 void SetIDTGate(ubyte num, uint base, ushort selector, ubyte flags)
 {
 	idt[num].offset_1 = base & 0xFFFF;

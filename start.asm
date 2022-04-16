@@ -1,7 +1,6 @@
 ; Copyright (C) 2021 Mateus de Lima Oliveira
 global start
-extern main        ; Allow main() to be called from the assembly code
-extern start_ctors, end_ctors, start_dtors, end_dtors
+extern main
 extern end
 
 MODULEALIGN        equ        1<<0
@@ -18,17 +17,7 @@ MultiBootHeader:
 	dd FLAGS
 	dd CHECKSUM
 
-STACKSIZE equ 0x4000  ; 16 KiB if you're wondering
-
-static_ctors_loop:
-	mov ebx, start_ctors
-	jmp .test
-.body:
-	call [ebx]
-	add ebx,4
-.test:
-	cmp ebx, end_ctors
-	jb .body
+STACKSIZE equ 0x4000
 
 start:
     cli   
@@ -43,17 +32,6 @@ start:
 	call main
 	
 	jmp cpuhalt ; !!!
-
-static_dtors_loop:
-	mov ebx, start_dtors
-	jmp .test
-.body:
-	call [ebx]
-	add ebx,4
-.test:
-	cmp ebx, end_dtors
-	jb .body
-
 
 cpuhalt:
 	hlt

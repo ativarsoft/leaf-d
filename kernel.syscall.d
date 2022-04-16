@@ -9,7 +9,7 @@ extern(C) {
 	void sys_print(string s);
 }
 
-void SyscallHandler(ISRRegisters regs)
+@live void SyscallHandler(ISRRegisters regs)
 {
 	printk("syscall\n");
 }

@@ -51,10 +51,10 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 		printk(&default_console, "Incorrect magic.");
 		panic();
 	}
-	if ((cast(uint) addr % 64) != 0) {
+	/*if ((cast(uint) addr % 64) != 0) {
 		printk(&default_console, "Address is not 64-bit aligned.");
 		panic();
-	}
+	}*/
 
 	char[20] buf;
 

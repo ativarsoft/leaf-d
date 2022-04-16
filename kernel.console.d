@@ -13,15 +13,15 @@ static __gshared ubyte *vidmem = cast(ubyte*)0xFFFF_8000_000B_8000;
 
 static __gshared cons default_console = cons(0, 0, 80, 25);
 
-@trusted ubyte[] get_vidmem_slice(cons *c) {
+@trusted @live ubyte[] get_vidmem_slice(scope cons *c) {
 	return vidmem[0..c.LINES * c.COLUMNS * 2];
 }
 
 @safe void cls(cons *c)
 {
 	ubyte[] vidmem = get_vidmem_slice(c);
-	for (int i = 0; i < c.COLUMNS * c.LINES * 2; i+=2) { //Loops through the screen and clears it
-		//volatileStore(c.vidmem + i, 0);
+	// Loops through the screen and clears it
+	for (int i = 0; i < c.COLUMNS * c.LINES * 2; i+=2) {
 		vidmem[i] = ' ';
 		vidmem[i+1] = 0x07;
 	}
@@ -33,75 +33,67 @@ static __gshared cons default_console = cons(0, 0, 80, 25);
 /* Convert the integer D to a string and save the string in BUF. If
    BASE is equal to 'd', interpret that D is decimal, and if BASE is
    equal to 'x', interpret that D is hexadecimal. */
-static void
-itoa (char *buf, int base, int d)
+@system static void itoa (char *buf, int base, int d)
 {
-  char *p = buf;
-  char * p1, p2;
-  uint ud = d;
-  int divisor = 10;
+	char *p = buf;
+	char * p1, p2;
+	uint ud = d;
+	int divisor = 10;
 
-  /* If %d is specified and D is minus, put `-' in the head. */
-  if (base == 'd' && d < 0)
-    {
-      *p++ = '-';
-      buf++;
-      ud = -d;
-    }
-  else if (base == 'x')
-    divisor = 16;
+	/* If %d is specified and D is minus, put `-' in the head. */
+	if (base == 'd' && d < 0) {
+		*p++ = '-';
+		buf++;
+		ud = -d;
+	} else if (base == 'x') {
+		divisor = 16;
+	}
 
-  /* Divide UD by DIVISOR until UD == 0. */
-  do
-    {
-      uint remainder = ud % divisor;
+	/* Divide UD by DIVISOR until UD == 0. */
+	do {
+		uint remainder = ud % divisor;
 
-      *p++ = cast(char) ((remainder < 10) ? remainder + '0' : remainder + 'a' - 10);
-    }
-  while (ud /= divisor);
+		*p++ = cast(char) ((remainder < 10) ? remainder + '0' : remainder + 'a' - 10);
+	} while (ud /= divisor);
 
-  /* Terminate BUF. */
-  *p = 0;
+	/* Terminate BUF. */
+	*p = 0;
 
-  /* Reverse BUF. */
-  p1 = buf;
-  p2 = p - 1;
-  while (p1 < p2)
-    {
-      char tmp = *p1;
-      *p1 = *p2;
-      *p2 = tmp;
-      p1++;
-      p2--;
-    }
+	/* Reverse BUF. */
+	p1 = buf;
+	p2 = p - 1;
+	while (p1 < p2) {
+		char tmp = *p1;
+		*p1 = *p2;
+		*p2 = tmp;
+		p1++;
+		p2--;
+	}
 }
 
-static void scroll(cons *c)
+@system static void scroll(cons *c)
 {
+	// Get a space character with the default colour attributes.
+	ubyte attributeByte = (0 /*black*/ << 4) | (15 /*white*/ & 0x0F);
+	ushort blank = 0x20 /* space */ | (attributeByte << 8);
 
-    // Get a space character with the default colour attributes.
-    ubyte attributeByte = (0 /*black*/ << 4) | (15 /*white*/ & 0x0F);
-    ushort blank = 0x20 /* space */ | (attributeByte << 8);
+	// Row 25 is the end, this means we need to scroll up
+	if(c.ypos >= 25) {
+		// Move the current text chunk that makes up the screen
+		// back in the buffer by a line
+		int i;
+		for (i = 0*0; i < 24*80*2; i++){
+			vidmem[i] = vidmem[i+80*2];
+		}
 
-    // Row 25 is the end, this means we need to scroll up
-    if(c.ypos >= 25)
-    {
-        // Move the current text chunk that makes up the screen
-        // back in the buffer by a line
-        int i;
-        for (i = 0*0; i < 24*80*2; i++){
-            vidmem[i] = vidmem[i+80*2];
-        }
-
-        // The last line should now be blank. Do this by writing
-        // 80 spaces to it.
-        for (i = 24*80*2; i < 25*80*2; i++)
-        {
-            vidmem[i] = 0;
-        }
-        // The cursor should now be on the last line.
+		// The last line should now be blank. Do this by writing
+		// 80 spaces to it.
+		for (i = 24*80*2; i < 25*80*2; i++) {
+			vidmem[i] = 0;
+		}
+		// The cursor should now be on the last line.
 		c.ypos = 24;
-    }
+	}
 }
 
 @safe static void MoveCursor(cons *c)
@@ -114,7 +106,7 @@ static void scroll(cons *c)
 	WritePortByte(0x3D5, cast(ubyte) cursorLocation);      // Send the low cursor byte.
 }
 
-void printk(cons *c, string s)
+@trusted void printk(cons *c, string s)
 {
 	ubyte[] vidmem = get_vidmem_slice(c);
 	foreach (a; s) {

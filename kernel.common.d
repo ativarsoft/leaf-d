@@ -24,7 +24,7 @@ extern(C) {
 }*/
 
 extern(C)
-void memset(void *dest, ubyte val, uint len)
+@live void memset(scope void *dest, ubyte val, uint len)
 {
     ubyte *temp = cast(ubyte *)dest;
     for (int i = 0; i < len; i++) {
@@ -33,51 +33,24 @@ void memset(void *dest, ubyte val, uint len)
 }
 
 extern(C)
-void memcpy(void *dest, const void *src, uint len)
+@live void memcpy(scope void *dest, scope const void *src, uint len)
 {
     const(ubyte) *sp = cast(const(ubyte) *)src;
     ubyte *dp = cast(ubyte *)dest;
     for(; len != 0; len--) *dp++ = *sp++;
 }
 
-/*void memcpy(ubyte *dest, const(ubyte) *src, uint len)
-{
-	char[20] buf; // !!!
-    const(ubyte) *sp = cast(const(ubyte) *)src;
-    ubyte *dp = cast(ubyte *)dest;
-    printk(&default_console, "2badb002: ");
-	itoa(cast(char *) buf, 'x', cast(uint) *(cast(uint *) (cast(uint) sp + len - 12)));
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
-    for(int i = 0; i < len; i++) { // !!!
-		//printk(&default_console, ".");
-		//printk(&default_console, "i: ");
-	//itoa(cast(char *) buf, 'x', cast(uint) dp);
-	//printk(&default_console, cast(string) buf);
-	//printk(&default_console, "\n");
-		dp[i] = sp[i];
-	dp++;
-	sp++;
-	}
-	//printk(&default_console, "2badb002 2: ");
-	//itoa(cast(char *) buf, 'x', cast(uint) *(cast(uint *) (cast(uint) sp + len - 12)));
-	//printk(&default_console, cast(string) buf);
-	//printk(&default_console, "\n");
-	
-	printk(&default_console, "\n");
-}*/
-
-@trusted void panic()
+@safe @live void panic()
 {
 	DisableInterrupts();
-	printk(&default_console, "PANIC!");
+	printk("PANIC!");
 	for (;;) {
 	}
 }
 
-void ASSERT(bool cond) {
+@safe @live void ASSERT(bool cond) {
 	if (cond == false) {
-		printk(&default_console, "Assertation failed.");
+		printk("Assertation failed.");
 		panic();
 	}
 }

@@ -1,9 +1,9 @@
 # Copyright (C) 2021 Mateus de Lima Oliveira
-DLANG=ldc2
-FLAGS=--march=x86 --mcpu=i386
+#DLANG=ldc2
+#FLAGS=--march=x86 --mcpu=i386
 
-#DLANG=dmd
-#FLAGS=-m32 -gs
+DLANG=dmd
+FLAGS=-m32 -gs -preview=all
 
 all: kernel.bin
 
