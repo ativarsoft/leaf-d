@@ -37,8 +37,23 @@ LoadTSS:
 global sys_print
 sys_print:
 	push ebx
-	mov ebx, [esp + 4]
+	push ecx
+	mov ebx, [esp + 12]
+	mov ecx, [esp + 16]
 	mov eax, 69
 	int 0x80
+	pop ecx
+	pop ebx
+	ret
+
+global sys_mmap
+sys_mmap:
+	push ebx
+	push ecx
+	mov ebx, [esp + 12]
+	mov ecx, [esp + 16]
+	mov eax, 1
+	int 0x80
+	pop ecx
 	pop ebx
 	ret

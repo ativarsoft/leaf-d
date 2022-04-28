@@ -11,8 +11,8 @@ enum Origin {
 }
 
 extern(C++) class MemoryStream {
-	extern(C) __gshared ubyte[] data;
-	extern(C) __gshared int position;
+	extern(C) ubyte[] data;
+	extern(C) int position;
 
 	public static MemoryStream newInstance(void *p, uint len) {
 		//MemoryStream model = scoped!MemoryStream;
@@ -25,9 +25,9 @@ extern(C++) class MemoryStream {
 		
 		ubyte *tmp = cast(ubyte *) p;
 		//cls.data = tmp[0..len];
-		data = tmp[0..len];
+		cls.data = tmp[0..len];
 		//cls.position = 0;
-		position = 0;
+		cls.position = 0;
 		//panic();
 		return cls;
 	}

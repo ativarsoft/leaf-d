@@ -3,7 +3,7 @@ module kernel.isr;
 import kernel.console;
 import kernel.common;
 
-alias isr_t = void function(ISRRegisters);
+alias isr_t = extern(C) void function(ISRRegisters);
 
 extern(C)
 struct ISRRegisters

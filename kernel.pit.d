@@ -7,6 +7,7 @@ import kernel.task;
 
 static __gshared int ticks = 0;
 
+extern(C)
 void TimerCallback(ISRRegisters regs)
 {
 	char[20] buf;

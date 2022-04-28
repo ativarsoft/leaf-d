@@ -31,7 +31,9 @@ D_SOURCES= \
 	kernel.memorystream.d \
 	kernel.tss.d \
 	kernel.syscall.d \
-	kernel.init.d
+	kernel.init.d \
+	leaf.compiler.d \
+	leaf.syscall.d
 
 kernel.bin: $(ASM_SOURCES) $(D_SOURCES) linker.ld
 	nasm -f elf -o start.o start.asm
