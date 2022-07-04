@@ -1,6 +1,7 @@
 ; Copyright (C) 2021 Mateus de Lima Oliveira
 [bits 32]
 global WritePortByte
+global ReadPortByte
 global FlushTLB
 global ReadEIP
 global CopyPagePhysical
@@ -9,6 +10,11 @@ WritePortByte:
 	mov edx, [esp + 4] ; port
 	mov eax, [esp + 8] ; value
 	out dx, al
+	ret
+
+ReadPortByte:
+	mov edx, [esp + 4] ; port
+	in al, dx
 	ret
 
 FlushTLB:

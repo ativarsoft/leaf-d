@@ -12,6 +12,7 @@ import kernel.task;
 import kernel.tss;
 import kernel.syscall;
 import kernel.isr;
+import kernel.serial;
 
 extern(C) void enter_v86(uint ss, uint esp, uint cs, uint eip);
 extern(C) int detect_v86();
@@ -217,6 +218,14 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	uint *c = cast(uint *) kmalloc(12);
 	printk(&default_console, "Freeing third block.\n");
 	kfree(c);*/
+
+	InitializeSerial();
+	printk("Initialized serial port successfully.\n");
+
+	WriteSerial('L');
+	WriteSerial('e');
+	WriteSerial('a');
+	WriteSerial('f');
 
 	InitializeTasking(stack);
 	printk(&default_console, "Initialized the stack successfuly.\n");

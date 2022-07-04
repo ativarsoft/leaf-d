@@ -33,7 +33,8 @@ D_SOURCES= \
 	kernel.syscall.d \
 	kernel.init.d \
 	leaf.compiler.d \
-	leaf.syscall.d
+	leaf.syscall.d \
+	kernel.serial.d
 
 kernel.bin: $(ASM_SOURCES) $(D_SOURCES) linker.ld
 	nasm -f elf -o start.o start.asm
@@ -58,7 +59,7 @@ runcd: cdrom.iso
 	qemu-system-i386 -cdrom cdrom.iso
 
 run: kernel.bin
-	qemu-system-i386 -kernel kernel.bin
+	qemu-system-i386 -kernel kernel.bin -serial stdio
 
 debug: kernel.bin
 	qemu-system-i386 -s -S -kernel kernel.bin
