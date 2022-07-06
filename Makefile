@@ -1,9 +1,11 @@
 # Copyright (C) 2021 Mateus de Lima Oliveira
-#DLANG=ldc2
-#FLAGS=--march=x86 --mcpu=i386
+DLANG=ldc2
+FLAGS=--march=x86 --mcpu=i386
 
-DLANG=dmd
-FLAGS=-m32 -gs -preview=all
+#DLANG=dmd
+#FLAGS=-m32 -gs -preview=all
+
+LD=ld.lld
 
 all: kernel.bin
 
@@ -47,7 +49,7 @@ kernel.bin: $(ASM_SOURCES) $(D_SOURCES) linker.ld
 	#gdc -fno-exceptions -fno-moduleinfo -nophoboslib -m32 -c kernel.main.d -o kernel.main.o -g
 	# removed stack stomp
 	$(DLANG) $(FLAGS) -betterC -c $(D_SOURCES) -g
-	ld -melf_i386 -T linker.ld -o kernel.bin \
+	$(LD) -melf_i386 -T linker.ld -o kernel.bin \
 		$(patsubst %.asm,%.o,$(ASM_SOURCES)) \
 		$(patsubst %.d,%.o,$(D_SOURCES))
 
