@@ -2,47 +2,68 @@ module kernel.serial;
 import kernel.common;
 import kernel.console;
 
-enum PORT = 0x3f8;          // COM1
-
-int SerialReceived() {
-	return ReadPortByte(PORT + 5) & 1;
-}
-
-char ReadSerial() {
-	while (SerialReceived() == 0) {}
-
-	return ReadPortByte(PORT);
-}
-
-int IsTransmitEmpty() {
-	return ReadPortByte(PORT + 5) & 0x20;
-}
- 
-void WriteSerial(char a) {
-	while (IsTransmitEmpty() == 0) {}
-
-	WritePortByte(PORT, a);
-}
-
-void InitializeSerial()
-{
-	WritePortByte(PORT + 1, 0x00);    // Disable all interrupts
-	WritePortByte(PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
-	WritePortByte(PORT + 0, 0x03);    // Set divisor to 3 (lo byte) 38400 baud
-	WritePortByte(PORT + 1, 0x00);    //                  (hi byte)
-	WritePortByte(PORT + 3, 0x03);    // 8 bits, no parity, one stop bit
-	WritePortByte(PORT + 2, 0xC7);    // Enable FIFO, clear them, with 14-byte threshold
-	WritePortByte(PORT + 4, 0x0B);    // IRQs enabled, RTS/DSR set
-	WritePortByte(PORT + 4, 0x1E);    // Set in loopback mode, test the serial chip
-	WritePortByte(PORT + 0, 0xAE);    // Test serial chip (send byte 0xAE and check if serial returns same byte)
-
-	// Check if serial is faulty (i.e: not same byte as sent)
-	if(ReadPortByte(PORT + 0) != 0xAE) {
-		printk("Faulty serial port.\n");
-		panic();
+extern(C++) final class Serial {
+	public enum Port {
+		COM1 = 0x3f8
 	}
 
-	// If serial is not faulty set it in normal operation mode
-	// (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
-	WritePortByte(PORT + 4, 0x0F);
+	ushort port;
+
+	private int received() {
+		ushort port = cast(ushort) (this.port + 5);
+		return ReadPortByte(port) & 1;
+	}
+
+	public byte readByte() {
+		while (this.received() == 0) {}
+
+		return ReadPortByte(this.port);
+	}
+
+	private int isTransmitEmpty() {
+		ushort port = cast(ushort) (this.port + 5);
+		return ReadPortByte(port) & 0x20;
+	}
+ 
+	void writeUByte(ubyte a) {
+		while (this.isTransmitEmpty() == 0) {}
+
+		WritePortByte(this.port, a);
+	}
+
+	public void initialize(Serial.Port port) {
+		ushort tmp;
+
+		this.port = cast(ushort) port;
+
+		tmp = cast(ushort) (this.port + 1);
+		WritePortByte(tmp, 0x00u);    // Disable all interrupts
+		tmp = cast(ushort) (this.port + 3);
+		WritePortByte(tmp, 0x80u);    // Enable DLAB (set baud rate divisor)
+		tmp = cast(ushort) (this.port + 0);
+		WritePortByte(tmp, 0x03u);    // Set divisor to 3 (lo byte) 38400 baud
+		tmp = cast(ushort) (this.port + 1);
+		WritePortByte(tmp, 0x00u);    //                  (hi byte)
+		tmp = cast(ushort) (this.port + 3);
+		WritePortByte(tmp, 0x03u);    // 8 bits, no parity, one stop bit
+		tmp = cast(ushort) (this.port + 2);
+		WritePortByte(tmp, 0xC7u);    // Enable FIFO, clear them, with 14-byte threshold
+		tmp = cast(ushort) (this.port + 4);
+		WritePortByte(tmp, 0x0Bu);    // IRQs enabled, RTS/DSR set
+		WritePortByte(tmp, 0x1Eu);    // Set in loopback mode, test the serial chip
+		tmp = cast(ushort) (this.port + 0);
+		WritePortByte(tmp, 0xAEu);    // Test serial chip (send byte 0xAE and check if serial returns same byte)
+
+		// Check if serial is faulty (i.e: not same byte as sent)
+		tmp = cast(ushort) (this.port + 0);
+		if(ReadPortByte(tmp) != 0xAEu) {
+			printk("Faulty serial port.\n");
+			panic();
+		}
+
+		// If serial is not faulty set it in normal operation mode
+		// (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
+		tmp = cast(ushort) (this.port + 4);
+		WritePortByte(tmp, 0x0Fu);
+	}
 }

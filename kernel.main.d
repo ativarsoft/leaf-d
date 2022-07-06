@@ -219,13 +219,16 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	printk(&default_console, "Freeing third block.\n");
 	kfree(c);*/
 
-	InitializeSerial();
+	Serial COM1;
+
+	COM1.initialize(Serial.Port.COM1);
 	printk("Initialized serial port successfully.\n");
 
-	WriteSerial('L');
-	WriteSerial('e');
-	WriteSerial('a');
-	WriteSerial('f');
+	COM1.writeUByte('L');
+	COM1.writeUByte('e');
+	COM1.writeUByte('a');
+	COM1.writeUByte('f');
+	COM1.writeUByte('\n');
 
 	InitializeTasking(stack);
 	printk(&default_console, "Initialized the stack successfuly.\n");
