@@ -13,6 +13,7 @@ import kernel.tss;
 import kernel.syscall;
 import kernel.isr;
 import kernel.serial;
+import kernel.pci;
 
 extern(C) void enter_v86(uint ss, uint esp, uint cs, uint eip);
 extern(C) int detect_v86();
@@ -229,6 +230,10 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	COM1.writeUByte('a');
 	COM1.writeUByte('f');
 	COM1.writeUByte('\n');
+
+	PCI pci;
+
+	pci.scanForDevices();
 
 	InitializeTasking(stack);
 	printk(&default_console, "Initialized the stack successfuly.\n");

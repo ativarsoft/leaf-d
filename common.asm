@@ -2,6 +2,8 @@
 [bits 32]
 global WritePortByte
 global ReadPortByte
+global WritePortLong
+global ReadPortLong
 global FlushTLB
 global ReadEIP
 global CopyPagePhysical
@@ -15,6 +17,17 @@ WritePortByte:
 ReadPortByte:
 	mov edx, [esp + 4] ; port
 	in al, dx
+	ret
+
+WritePortLong:
+	mov edx, [esp + 4] ; port
+	mov eax, [esp + 8] ; value
+	out dx, eax
+	ret
+
+ReadPortLong:
+	mov edx, [esp + 4] ; port
+	in eax, dx
 	ret
 
 FlushTLB:

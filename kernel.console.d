@@ -137,9 +137,14 @@ static __gshared cons default_console = cons(0, 0, 80, 25);
 	printk(&default_console, s);
 }
 
-@trusted PrintIntHex(int x)
+@trusted void PrintIntHex(int x)
 {
 	char[20] buf;
 	itoa(cast(char *) buf, 'x', x);
 	printk(&default_console, cast(string) buf);
+}
+
+@safe void PrintNewLine()
+{
+	printk("\n");
 }

@@ -36,7 +36,8 @@ D_SOURCES= \
 	kernel.init.d \
 	leaf.compiler.d \
 	leaf.syscall.d \
-	kernel.serial.d
+	kernel.serial.d \
+	kernel.pci.d
 
 kernel.bin: $(ASM_SOURCES) $(D_SOURCES) linker.ld
 	nasm -f elf -o start.o start.asm
