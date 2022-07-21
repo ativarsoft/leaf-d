@@ -7,6 +7,7 @@
 
 module kernel.tty;
 import kernel.console;
+import kernel.serial;
 import kernel.array;
 
 struct TTY {
@@ -18,8 +19,18 @@ static __gshared TTY[8] tty;
 enum TTY_MAJOR = 1;
 enum TTY_MINOR = 0;
 
+union TTYDeviceData {
+	cons console;
+	Serial serial;
+}
+
+struct TTYDeviceOperations {
+	void function(ref TTYDeviceData data, string data) write;
+}
+
 struct TTYDevice {
-	void function(string data) write;
+	TTYDeviceData data;
+	TTYDeviceOperations ops;
 };
 
 static __gshared Array!TTYDevice tty_devices;
@@ -45,7 +56,7 @@ static __gshared Array!TTYDevice tty_devices;
 	tty0 = getTTY(0);
 	TTYDevice device;
 	device = getTTYDevice(tty0.device);
-	device.write(s);
+	device.ops.write(device.data, s);
 }
 
 int registerTTYDevice(TTYDevice device)
@@ -55,9 +66,14 @@ int registerTTYDevice(TTYDevice device)
 
 void initTTY()
 {
-	TTY tty0;
 	tty_devices.init(16);
-	int id = registerTTYDevice(consoleDevice);
+
+	TTYDevice dev;
+	dev.data.console = default_console;
+	dev.ops = consoleDevice;
+	int id = registerTTYDevice(dev);
+
+	TTY tty0;
 	tty0 = getTTY(0);
 	tty0.device = id;
 	setTTY(0, tty0);

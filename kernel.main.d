@@ -76,7 +76,7 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	//if (cast(uint) addr & )
 	string local = "local\n";
 	//cons default_console = {0, 0, 80, 25, (cast(ubyte*)0xFFFF_8000_000B_8000)[0..80*25*2]};
-	cls(&default_console);
+	cls(default_console);
 	printk("Leaf v1.0\n");
 	printk("Virtual 8086 Mode: ");
 	if (detect_v86())
@@ -212,6 +212,15 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	COM1.writeUByte('a');
 	COM1.writeUByte('f');
 	COM1.writeUByte('\n');
+
+	TTYDevice dev;
+	dev.data.serial = COM1;
+	dev.ops = serial_tty;
+	int serialTTYID = registerTTYDevice(dev);
+
+	TTY tty0 = getTTY(0);
+	tty0.device = serialTTYID;
+	setTTY(0, tty0);
 
 	PCI pci;
 	pci = cast(PCI) kmalloc(PCI.sizeof);

@@ -6,19 +6,19 @@ import kernel.tty;
 struct cons {
 	int ypos; //Starting points of the cursor
 	int xpos;
-	const uint COLUMNS; //Screensize
-	const uint LINES;
+	uint COLUMNS; //Screensize
+	uint LINES;
 }
 
 static __gshared ubyte *vidmem = cast(ubyte*)0xFFFF_8000_000B_8000;
 
 static __gshared cons default_console = cons(0, 0, 80, 25);
 
-@trusted @live ubyte[] get_vidmem_slice(scope cons *c) {
+@trusted @live ubyte[] get_vidmem_slice(ref cons c) {
 	return vidmem[0..c.LINES * c.COLUMNS * 2];
 }
 
-@safe void cls(cons *c)
+@safe void cls(ref cons c)
 {
 	ubyte[] vidmem = get_vidmem_slice(c);
 	// Loops through the screen and clears it
@@ -72,7 +72,7 @@ static __gshared cons default_console = cons(0, 0, 80, 25);
 	}
 }
 
-@system static void scroll(cons *c)
+@system static void scroll(ref cons c)
 {
 	// Get a space character with the default colour attributes.
 	ubyte attributeByte = (0 /*black*/ << 4) | (15 /*white*/ & 0x0F);
@@ -97,7 +97,7 @@ static __gshared cons default_console = cons(0, 0, 80, 25);
 	}
 }
 
-@safe static void MoveCursor(cons *c)
+@safe static void MoveCursor(const cons c)
 {
 	//ushort cursorLocation = cast(ushort) (c.ypos * c.COLUMNS + c.xpos);
 	ushort cursorLocation = cast(ushort) (c.xpos + c.ypos * c.COLUMNS);
@@ -107,7 +107,7 @@ static __gshared cons default_console = cons(0, 0, 80, 25);
 	WritePortByte(0x3D5, cast(ubyte) cursorLocation);      // Send the low cursor byte.
 }
 
-@trusted void consoleWrite(cons *c, string s)
+@trusted void _consoleWrite(ref cons c, string s)
 {
 	ubyte[] vidmem = get_vidmem_slice(c);
 	foreach (a; s) {
@@ -134,8 +134,13 @@ static __gshared cons default_console = cons(0, 0, 80, 25);
 	MoveCursor(c);
 }
 
+void consoleTTYWrite(ref TTYDeviceData data, string s)
+{
+	_consoleWrite(data.console, s);
+}
+
 @trusted static void consoleWrite(string s) {
-	consoleWrite(&default_console, s);
+	_consoleWrite(default_console, s);
 }
 
 @trusted void PrintIntHex(int x)
@@ -150,6 +155,6 @@ static __gshared cons default_console = cons(0, 0, 80, 25);
 	printk("\n");
 }
 
-static __gshared TTYDevice consoleDevice = {
-	write: &consoleWrite
+static __gshared TTYDeviceOperations consoleDevice = {
+	write: &consoleTTYWrite
 };

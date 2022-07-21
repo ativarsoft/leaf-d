@@ -69,13 +69,15 @@ extern(C++) final class Serial {
 	}
 }
 
-void serialPrint(Serial serial, string s) {
+void serialPrint(ref Serial serial, string s) {
 	foreach (c; s) {
+		if (c == '\0')
+			break;
 		serial.writeUByte(cast(ubyte) c);
 	}
 }
 
-void serialReadLine(Serial serial, out char[] buffer) {
+void serialReadLine(ref Serial serial, out char[] buffer) {
 	char c;
 	for (int i = 0; i < buffer.length; i++) {
 		c = serial.readUByte();
@@ -84,3 +86,12 @@ void serialReadLine(Serial serial, out char[] buffer) {
 			break;
 	}
 }
+
+void serialTTYWrite(ref TTYDeviceData data, string s)
+{
+	serialPrint(data.serial, s);
+}
+
+__gshared TTYDeviceOperations serial_tty = {
+	write: &serialTTYWrite
+};
