@@ -37,21 +37,31 @@ D_SOURCES= \
 	leaf.compiler.d \
 	leaf.syscall.d \
 	kernel.serial.d \
-	kernel.pci.d
+	kernel.pci.d \
+	kernel.array.d \
+	kernel.ata.d \
+	kernel.tty.d
 
-kernel.bin: $(ASM_SOURCES) $(D_SOURCES) linker.ld
-	nasm -f elf -o start.o start.asm
-	nasm -f elf -o v86.o v86.asm
-	nasm -f elf -o gdt.o gdt.asm
-	nasm -f elf -o idt.o idt.asm
-	nasm -f elf -o common.o common.asm
-	nasm -f elf -o paging.o paging.asm
-	nasm -f elf -o task.o task.asm
+%.o: %.asm
+	nasm -f elf -o $@ $<
+
+leaf-rt.a: $(patsubst %.asm,%.o,$(ASM_SOURCES))
+	ar rcu $@ $^
+	ranlib $@
+
+kernel.bin: leaf-rt.a $(D_SOURCES) linker.ld
+	#nasm -f elf -o start.o start.asm
+	#nasm -f elf -o v86.o v86.asm
+	#nasm -f elf -o gdt.o gdt.asm
+	#nasm -f elf -o idt.o idt.asm
+	#nasm -f elf -o common.o common.asm
+	#nasm -f elf -o paging.o paging.asm
+	#nasm -f elf -o task.o task.asm
 	#gdc -fno-exceptions -fno-moduleinfo -nophoboslib -m32 -c kernel.main.d -o kernel.main.o -g
 	# removed stack stomp
 	$(DLANG) $(FLAGS) -betterC -c $(D_SOURCES) -g
 	$(LD) -melf_i386 -T linker.ld -o kernel.bin \
-		$(patsubst %.asm,%.o,$(ASM_SOURCES)) \
+		--whole-archive leaf-rt.a \
 		$(patsubst %.d,%.o,$(D_SOURCES))
 
 cdrom.iso: kernel.bin
@@ -69,7 +79,7 @@ debug: kernel.bin
 
 clean:
 	rm -f cdrom.iso
-	rm -fr kernel.bin *.o
+	rm -f kernel.bin *.o *.a
 	rm -f isofiles/boot/kernel.bin
 
 .PHONY: run debug clean

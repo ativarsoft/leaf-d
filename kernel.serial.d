@@ -1,26 +1,27 @@
 module kernel.serial;
 import kernel.common;
 import kernel.console;
+import kernel.tty;
 
 extern(C++) final class Serial {
-	public enum Port {
+	enum Port {
 		COM1 = 0x3f8
 	}
 
-	ushort port;
+	extern(C) ushort port;
 
-	private int received() {
+	int received() {
 		ushort port = cast(ushort) (this.port + 5);
 		return ReadPortByte(port) & 1;
 	}
 
-	public byte readByte() {
+	byte readUByte() {
 		while (this.received() == 0) {}
 
 		return ReadPortByte(this.port);
 	}
 
-	private int isTransmitEmpty() {
+	int isTransmitEmpty() {
 		ushort port = cast(ushort) (this.port + 5);
 		return ReadPortByte(port) & 0x20;
 	}
@@ -31,7 +32,7 @@ extern(C++) final class Serial {
 		WritePortByte(this.port, a);
 	}
 
-	public void initialize(Serial.Port port) {
+	void initialize(Serial.Port port) {
 		ushort tmp;
 
 		this.port = cast(ushort) port;
@@ -65,5 +66,21 @@ extern(C++) final class Serial {
 		// (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
 		tmp = cast(ushort) (this.port + 4);
 		WritePortByte(tmp, 0x0Fu);
+	}
+}
+
+void serialPrint(Serial serial, string s) {
+	foreach (c; s) {
+		serial.writeUByte(cast(ubyte) c);
+	}
+}
+
+void serialReadLine(Serial serial, out char[] buffer) {
+	char c;
+	for (int i = 0; i < buffer.length; i++) {
+		c = serial.readUByte();
+		buffer[i] = c;
+		if (c != '\0')
+			break;
 	}
 }

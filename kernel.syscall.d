@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.syscall;
 import kernel.isr;
-import kernel.console;
+import kernel.tty;
 import kernel.common : panic;
 import kernel.paging : alloc_frame, getPage, currentDirectory;
 import leaf.syscall;

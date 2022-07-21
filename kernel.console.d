@@ -1,6 +1,7 @@
 // Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.console;
 import kernel.common;
+import kernel.tty;
 
 struct cons {
 	int ypos; //Starting points of the cursor
@@ -106,7 +107,7 @@ static __gshared cons default_console = cons(0, 0, 80, 25);
 	WritePortByte(0x3D5, cast(ubyte) cursorLocation);      // Send the low cursor byte.
 }
 
-@trusted void printk(cons *c, string s)
+@trusted void consoleWrite(cons *c, string s)
 {
 	ubyte[] vidmem = get_vidmem_slice(c);
 	foreach (a; s) {
@@ -133,18 +134,22 @@ static __gshared cons default_console = cons(0, 0, 80, 25);
 	MoveCursor(c);
 }
 
-@trusted void printk(string s) {
-	printk(&default_console, s);
+@trusted static void consoleWrite(string s) {
+	consoleWrite(&default_console, s);
 }
 
 @trusted void PrintIntHex(int x)
 {
 	char[20] buf;
 	itoa(cast(char *) buf, 'x', x);
-	printk(&default_console, cast(string) buf);
+	printk(cast(string) buf);
 }
 
 @safe void PrintNewLine()
 {
 	printk("\n");
 }
+
+static __gshared TTYDevice consoleDevice = {
+	write: &consoleWrite
+};

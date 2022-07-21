@@ -3,6 +3,7 @@ module kernel.orderedlist;
 import kernel.heap;
 import kernel.common;
 import kernel.console;
+import kernel.tty;
 import kernel.memorystream;
 
 //alias type_t = void *; /* Ordered array entry. */
@@ -103,7 +104,7 @@ void insert_ordered_array(type_t item, ref OrderedArray oa)
 type_t lookup_ordered_array(uint i, ref OrderedArray oa)
 {
 	if (!(i < oa.size)) {
-		printk(&default_console, "ERROR: lookup_ordered_array: i >= oa.size\n");
+		printk("ERROR: lookup_ordered_array: i >= oa.size\n");
 		panic();
 	}
 	return oa.array[i];

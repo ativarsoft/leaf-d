@@ -1,6 +1,7 @@
 // Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.pit;
 import kernel.console;
+import kernel.tty;
 import kernel.isr;
 import kernel.common;
 import kernel.task;
@@ -12,10 +13,10 @@ void TimerCallback(ISRRegisters regs)
 {
 	char[20] buf;
 	ticks++;
-	printk(&default_console, "Ticks: ");
+	printk("Ticks: ");
 	itoa(cast(char *) buf, 10, ticks);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
 
 	SwitchTask(&regs);
 }

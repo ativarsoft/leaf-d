@@ -2,7 +2,7 @@
 module kernel.paging;
 import kernel.heap;
 import kernel.common;
-import kernel.console;
+import kernel.tty;
 import kernel.task; // debug
 
 alias page_t = uint;
@@ -72,22 +72,22 @@ uint firstFreeFrame() {
 void alloc_frame(page_t *page, int is_kernel, int is_writeable)
 {
 	//printk(&default_console, "Alloc frame.\n");
-    if ((((*page >> 12) & 0xFFFFF) != 0) && false) {
-		printk(&default_console, "Page already taken.\n");
-        return;
-    } else {
-        uint idx = firstFreeFrame();
-        if (idx == cast(uint)-1) {
-            // PANIC! no free frames!!
-            printk(&default_console, "ERROR: No free frames!\n");
-            panic();
-        }
-        setFrame(idx*0x1000);
-        *page |= 1 << 0; // Present
-        *page |= (is_writeable)? 1 << 1 : 0;
-        *page |= (is_kernel)? 0 : 1 << 2;
-        *page |= idx << 12; // 0x1000, 0x2000, 0x3000 ...
-    }
+	if ((((*page >> 12) & 0xFFFFF) != 0) && false) {
+		printk("Page already taken.\n");
+		return;
+	} else {
+		uint idx = firstFreeFrame();
+		if (idx == cast(uint)-1) {
+			// PANIC! no free frames!!
+			printk("ERROR: No free frames!\n");
+			panic();
+		}
+		setFrame(idx*0x1000);
+		*page |= 1 << 0; // Present
+		*page |= (is_writeable)? 1 << 1 : 0;
+		*page |= (is_kernel)? 0 : 1 << 2;
+		*page |= idx << 12; // 0x1000, 0x2000, 0x3000 ...
+	}
 }
 
 void InitializePaging(uint stack)

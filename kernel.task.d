@@ -5,6 +5,7 @@ import kernel.idt;
 import kernel.heap;
 import kernel.common;
 import kernel.console;
+import kernel.tty;
 import kernel.init;
 import kernel.tss;
 import kernel.isr;
@@ -41,17 +42,17 @@ void InitializeTasking(uint stack)
 
 	initial_esp = stack; // !!!
 	char[20] buf;
-	printk(&default_console, "Stack start: ");
+	printk("Stack start: ");
 	itoa(cast(char *) buf, 'x', stack);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
 
     // Rather important stuff happening, no interrupts please!
     DisableInterrupts();
 
     // Relocate the stack so we know where it is.
     move_stack(stack, cast(void*) KERNEL_STACK_ADDRESS, KERNEL_STACK_SIZE); // !!!
-    printk(&default_console, "Stack copied successfully.\n");
+    printk("Stack copied successfully.\n");
 
     // Initialise the first task (kernel task)
     current_task = ready_queue = cast(Task*)kmalloc(Task.sizeof);
@@ -69,11 +70,6 @@ extern(C)
 void move_stack(uint old_stack_start, void *new_stack_start, uint size)
 {
 	__gshared char[20] buf; // !!!
-
-	/*printk(&default_console, "old_stack_start: ");
-	itoa(cast(char *) buf, 'x', old_stack_start);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");*/
 	
 	uint i;
   // Allocate some space for the new stack.
@@ -81,10 +77,6 @@ void move_stack(uint old_stack_start, void *new_stack_start, uint size)
        i < (cast(uint) new_stack_start + size + 0x4000); // !!!
        i += 0x1000)
   {
-	/*printk(&default_console, "Allocating page: ");
-	  itoa(cast(char *) buf, 'x', i);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");*/
     // General-purpose stack is in user-mode.
     alloc_frame( getPage(i, 1, currentDirectory), 0 /* User mode */, 1 /* Is writable */ );
   }
@@ -115,27 +107,27 @@ void move_stack(uint old_stack_start, void *new_stack_start, uint size)
 	uint new_base_pointer =
 		cast(uint) new_stack_start + (old_base_pointer - old_stack_start);
 	
-	/*printk(&default_console, "XXX\n");
+	/*printk("XXX\n");
 	
-	printk(&default_console, "old_stack_start: ");
+	printk("old_stack_start: ");
 	itoa(cast(char *) buf, 'x', old_stack_start);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");*/
+	printk(cast(string) buf);
+	printk("\n");*/
 	
-	/*printk(&default_console, "initial_esp: ");
+	/*printk("initial_esp: ");
 	itoa(cast(char *) buf, 'x', initial_esp);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");*/
+	printk(cast(string) buf);
+	printk("\n");*/
 	
-	/*printk(&default_console, "old_stack_pointer: ");
+	/*printk("old_stack_pointer: ");
 	itoa(cast(char *) buf, 'x', old_stack_pointer);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
 	
-	printk(&default_console, "currentStackSize: ");
+	printk("currentStackSize: ");
 	itoa(cast(char *) buf, 'x', currentStackSize);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");*/
+	printk(cast(string) buf);
+	printk("\n");*/
 	
 	// Copy the stack.
 	//memcpy(cast(ubyte*)new_stack_pointer, cast(ubyte*)old_stack_pointer, initial_esp-old_stack_pointer);
@@ -143,16 +135,16 @@ void move_stack(uint old_stack_start, void *new_stack_start, uint size)
 		(cast(ubyte*)new_stack_pointer,
 		cast(ubyte*)old_stack_pointer,
 		currentStackSize); // !!!*/
-	/*printk(&default_console, "old_stack_pointer[0]: ");
+	/*printk("old_stack_pointer[0]: ");
 	itoa(cast(char *) buf, 'x', cast(uint) (cast(uint *)old_stack_pointer)[4095]);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");*/
+	printk(cast(string) buf);
+	printk("\n");*/
 	memcpy
 		(cast(ubyte*)new_stack_start,
 		 cast(ubyte*)old_stack_start,
 		 size); // !!!
   
-  //printk(&default_console, "AAA\n");
+  //printk("AAA\n");
   //panic();
   
   // Backtrace through the original stack, copying new values into
@@ -160,16 +152,16 @@ void move_stack(uint old_stack_start, void *new_stack_start, uint size)
   // !!!
   /*for(i = cast(uint)new_stack_start; i < cast(uint)new_stack_start+size; i += 4)
   {
-	//printk(&default_console, "BBB\n");
+	//printk("BBB\n");
     uint tmp = * cast(uint*)i;
     // If the value of tmp is inside the range of the old stack, assume it is a base pointer
     // and remap it. This will unfortunately remap ANY value in this range, whether they are
     // base pointers or not.
-    //printk(&default_console, "CCC1\n");
+    //printk("CCC1\n");
     //panic();
-    if (( old_stack_pointer < tmp) && (tmp < initial_esp))
+    if ((old_stack_pointer < tmp) && (tmp < initial_esp))
     {
-		printk(&default_console, "CCC2\n");
+		printk("CCC2\n");
     panic();
       tmp = tmp + offset;
       uint *tmp2 = cast(uint*)i;
@@ -177,35 +169,35 @@ void move_stack(uint old_stack_start, void *new_stack_start, uint size)
     }
   }*/
 
-	printk(&default_console, "old_stack_pointer: ");
+	printk("old_stack_pointer: ");
 	itoa(cast(char *) buf, 'x', old_stack_pointer);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
 	
-	printk(&default_console, "old_base_pointer: ");
+	printk("old_base_pointer: ");
 	itoa(cast(char *) buf, 'x', old_base_pointer);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
 	
-	printk(&default_console, "new_stack_pointer: ");
+	printk("new_stack_pointer: ");
 	itoa(cast(char *) buf, 'x', new_stack_pointer);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
 	
-	printk(&default_console, "new_base_pointer: ");
+	printk("new_base_pointer: ");
 	itoa(cast(char *) buf, 'x', new_base_pointer);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
 	
-	printk(&default_console, "old 2badb002: ");
+	printk("old 2badb002: ");
 	itoa(cast(char *) buf, 'x', *(cast(uint *) (old_stack_start + size - 16)));
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
 	
-	printk(&default_console, "new 2badb002: ");
+	printk("new 2badb002: ");
 	itoa(cast(char *) buf, 'x', *(cast(uint *) (new_stack_start + size - 16)));
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
 	//panic();
   
   asm {
@@ -216,15 +208,15 @@ void move_stack(uint old_stack_start, void *new_stack_start, uint size)
 	// Flush the TLB by reading and writing the page directory address again.
 	FlushTLB();
 	
-	printk(&default_console, "new_stack_pointer: ");
+	printk("new_stack_pointer: ");
 	itoa(cast(char *) buf, 'x', new_stack_pointer);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
 	
-	printk(&default_console, "new_base_pointer: ");
+	printk("new_base_pointer: ");
 	itoa(cast(char *) buf, 'x', new_base_pointer);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
 }
 
 int fork()
@@ -259,10 +251,10 @@ int fork()
     uint eip = ReadEIP();
 
 
-	printk(&default_console, "current_task.id: ");
+	printk("current_task.id: ");
 	itoa(cast(char *) buf, 'x', current_task.id);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
     // We could be the parent or the child here - check.
     if (current_task == parent_task)
     {

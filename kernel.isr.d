@@ -1,6 +1,7 @@
 // Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.isr;
 import kernel.console;
+import kernel.tty;
 import kernel.common;
 
 alias isr_t = extern(C) void function(ISRRegisters);
@@ -32,19 +33,19 @@ void isrHandler(ISRRegisters regs)
 	if (regs.int_no < 32) {
 		char[20] buf;
 		itoa(cast(char *) buf, 'd', cast(int) regs.int_no);
-		printk(&default_console, "Interrupt ");
-		printk(&default_console, cast(string) buf);
-		printk(&default_console, ". ");
+		printk("Interrupt ");
+		printk(cast(string) buf);
+		printk(". ");
 		
 		itoa(cast(char *) buf, 'd', cast(int) regs.eax);
-		printk(&default_console, "EAX ");
-		printk(&default_console, cast(string) buf);
-		printk(&default_console, ". ");
+		printk("EAX ");
+		printk(cast(string) buf);
+		printk(". ");
 		
 		itoa(cast(char *) buf, 'd', cast(int) regs.err_code);
-		printk(&default_console, "Error code ");
-		printk(&default_console, cast(string) buf);
-		printk(&default_console, ".\n");
+		printk("Error code ");
+		printk(cast(string) buf);
+		printk(".\n");
 		
 		if (regs.int_no == 14)
 			panic();
@@ -54,9 +55,9 @@ void isrHandler(ISRRegisters regs)
 	} else {
 		char[20] buf;
 		itoa(cast(char *) buf, 'd', cast(int) regs.int_no);
-		printk(&default_console, "Interrupt ");
-		printk(&default_console, cast(string) buf);
-		printk(&default_console, ". ");
+		printk("Interrupt ");
+		printk(cast(string) buf);
+		printk(". ");
 		count += 1;
 
 		if (regs.int_no >= 40) {

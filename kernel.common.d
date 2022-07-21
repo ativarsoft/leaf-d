@@ -1,6 +1,6 @@
 // Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.common;
-import kernel.console;
+import kernel.tty;
 import kernel.idt;
 
 extern(C) {
@@ -26,8 +26,8 @@ extern(C) {
 extern(C)
 @live void memset(scope void *dest, ubyte val, uint len)
 {
-    ubyte *temp = cast(ubyte *)dest;
-    for (int i = 0; i < len; i++) {
+	ubyte *temp = cast(ubyte *)dest;
+	for (int i = 0; i < len; i++) {
 		temp[i] = val;
 	}
 }
@@ -35,9 +35,9 @@ extern(C)
 extern(C)
 @live void memcpy(scope void *dest, scope const void *src, uint len)
 {
-    const(ubyte) *sp = cast(const(ubyte) *)src;
-    ubyte *dp = cast(ubyte *)dest;
-    for(; len != 0; len--) *dp++ = *sp++;
+	const(ubyte) *sp = cast(const(ubyte) *)src;
+	ubyte *dp = cast(ubyte *)dest;
+	for(; len != 0; len--) *dp++ = *sp++;
 }
 
 @safe @live void panic()

@@ -20,7 +20,7 @@ MultiBootHeader:
 STACKSIZE equ 0x4000
 
 start:
-    cli   
+	cli
 	mov esp, STACKSIZE+stack
 
 	; !!!
@@ -30,7 +30,7 @@ start:
 	push eax ; magic
 
 	call main
-	
+
 	jmp cpuhalt ; !!!
 
 cpuhalt:

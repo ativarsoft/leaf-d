@@ -1,6 +1,7 @@
 // Copyright (C) 2021 Mateus de Lima Oliveira
 module kernel.heap;
 import kernel.console;
+import kernel.tty;
 import kernel.heap;
 import kernel.orderedlist;
 import kernel.paging;
@@ -115,10 +116,10 @@ private Heap *CreateHeap(uint start, uint endAddress, uint max, ubyte supervisor
 	/*char[20] buf;
 	kheap.stream.fseek(0, Origin.SEEK_SET);
 	Header header = readHeader(kheap.stream);
-	printk(&default_console, "???????????? header.magic: ");
+	printk("???????????? header.magic: ");
     itoa(cast(char *) buf, 'x', cast(uint) header.magic);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");*/
+	printk(cast(string) buf);
+	printk("\n");*/
 	
 	return heap;
 }
@@ -176,15 +177,15 @@ void *kmalloc_ap(uint sz, uint *phys)
 struct Header
 {
 	align (4):
-    uint magic;
-    bool isHole;
-    uint size;
+	uint magic;
+	bool isHole;
+	uint size;
 };
 
 struct Footer
 {
 	align (4):
-    uint magic;
+	uint magic;
 	uint headerAbsolutePosition;
 };
 
@@ -199,25 +200,25 @@ private void *Allocate(uint size, int page_align, ref Heap heap)
 	
 	heap.stream.fseek(0, Origin.SEEK_SET);
 	Header header = readHeader(heap.stream);
-	printk(&default_console, "!!!!!!!!!!!! header.magic: ");
-    itoa(cast(char *) buf, 'x', cast(uint) header.magic);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk("!!!!!!!!!!!! header.magic: ");
+	itoa(cast(char *) buf, 'x', cast(uint) header.magic);
+	printk(cast(string) buf);
+	printk("\n");
 	
 	uint sizeWithHeaders = size + Header.sizeof + Footer.sizeof;
 	int iterator = FindSmallestHole(sizeWithHeaders, page_align != 0? 1 : 0, heap);
 	if (iterator == -1) { // TODO: no free space
-		printk(&default_console, "ERROR: no free space.\n");
+		printk("ERROR: no free space.\n");
 		panic();
 	}
 
-	printk(&default_console, "iterator: ");
-    itoa(cast(char *) buf, 'x', cast(uint) iterator);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk("iterator: ");
+	itoa(cast(char *) buf, 'x', cast(uint) iterator);
+	printk(cast(string) buf);
+	printk("\n");
 
 	if (!(iterator < heap.index.size)) {
-		printk(&default_console, "ERROR: Iterator is not less then heap index size.\n");
+		printk("ERROR: Iterator is not less then heap index size.\n");
 		panic();
 	}
 	uint headerOffset = heap.index.array[iterator];
@@ -262,10 +263,10 @@ private void *Allocate(uint size, int page_align, ref Heap heap)
 	/* Size of the new hole block. */
 	uint newSizeWithHeaders = size + Header.sizeof + Footer.sizeof;
 	
-	printk(&default_console, "originalHoleHeader.size - newSizeWithHeaders: ");
-    itoa(cast(char *) buf, 'x', cast(uint) originalHoleHeader.size - newSizeWithHeaders);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk("originalHoleHeader.size - newSizeWithHeaders: ");
+	itoa(cast(char *) buf, 'x', cast(uint) originalHoleHeader.size - newSizeWithHeaders);
+	printk(cast(string) buf);
+	printk("\n");
 	
 	if (originalHoleHeader.size - size > Header.sizeof + Footer.sizeof) {
 		uint newHolePosition = originalHolePosition + size + Header.sizeof + Footer.sizeof;
@@ -364,10 +365,10 @@ private void *Allocate(uint size, int page_align, ref Heap heap)
 		} else if (size <= header.size) {
 			break;
 		}
-		printk(&default_console, "header.size: ");
-    itoa(cast(char *) buf, 'x', cast(uint) header.size);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+		printk("header.size: ");
+		itoa(cast(char *) buf, 'x', cast(uint) header.size);
+		printk(cast(string) buf);
+		printk("\n");
 	}
 	
 	printk("$$$$$$$$$$$$$$$$ heap.index.array[i]: ");
@@ -381,14 +382,6 @@ private void *Allocate(uint size, int page_align, ref Heap heap)
 
 private void Free(int offset, ref Heap heap)
 {
-	/*char[20] buf;
-	heap.stream.fseek(0, Origin.SEEK_SET);
-	Header header = readHeader(heap.stream);
-	printk(&default_console, "header.magic: ");
-    itoa(cast(char *) buf, 'x', cast(uint) header.magic);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");*/
-	
 	Header header;
 	int headerOffset = offset - Header.sizeof;
 	heap.stream.fseek(headerOffset, Origin.SEEK_SET);
@@ -401,11 +394,11 @@ private void Free(int offset, ref Heap heap)
 	
 	
 	if (header.magic != HEAP_MAGIC) {
-		printk(&default_console, "ERROR: Free: header magic is incorrect.");
+		printk("ERROR: Free: header magic is incorrect.");
 		panic();
 	}
-    if (footer.magic != HEAP_MAGIC) {
-		printk(&default_console, "ERROR: Free: footer magic is incorrect.");
+	if (footer.magic != HEAP_MAGIC) {
+		printk("ERROR: Free: footer magic is incorrect.");
 		panic();
 	}
 	
@@ -442,7 +435,7 @@ void DumpHeap(ref Heap heap)
 		int headerPos = heap.stream.ftell();
 		printk("Header found at position 0x");
 		PrintIntHex(headerPos);
-		printk(&default_console, "\n");
+		printk("\n");
 		Header header = readHeader(heap.stream);
 		if (header.magic != HEAP_MAGIC) {
 			printk("Incorrect header magic.\n");
@@ -450,13 +443,13 @@ void DumpHeap(ref Heap heap)
 		}
 		printk("Is hole: ");
 		PrintIntHex(header.isHole);
-		printk(&default_console, "\n");
+		printk("\n");
 
 		heap.stream.fseek(header.size, Origin.SEEK_CUR);
 		int footerPos = heap.stream.ftell();
 		printk("Footer position 0x");
 		PrintIntHex(footerPos);
-		printk(&default_console, "\n");
+		printk("\n");
 		Footer footer = readFooter(heap.stream);
 		if (footer.magic != HEAP_MAGIC) {
 			printk("Incorrect footer magic.\n");

@@ -2,6 +2,7 @@
 module kernel.main;
 import core.bitop; // will be core.volatile in later gdc
 import kernel.console;
+import kernel.tty;
 import kernel.gdt;
 import kernel.idt;
 import kernel.pit;
@@ -34,38 +35,41 @@ immutable void* horrible_hack = null; // D:*/
 extern (C) void __assert(const(char)[] filename, int line, const(char)[] msg) {
 	//cls(&default_console);
 	if (filename != null) {
-		printk(&default_console, cast(string) filename);
-		printk(&default_console, ": ");
+		printk(cast(string) filename);
+		printk(": ");
 	}
 	char[20] buf;
 	itoa(cast(char *) buf, 'd', line);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, ": ");
-	printk(&default_console, cast(string) msg);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk(": ");
+	printk(cast(string) msg);
+	printk("\n");
 	panic();
 }
 
 extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 {
+	kernel.heap.heap = heap;
+	InitializeHeap();
+	initTTY();
+	//panic();
+
 	// Multiboot version 2
 	if (magic != 0x2BADB002) {
-		printk(&default_console, "Incorrect magic.");
+		printk("Incorrect magic.");
 		panic();
 	}
 	/*if ((cast(uint) addr % 64) != 0) {
-		printk(&default_console, "Address is not 64-bit aligned.");
+		printk("Address is not 64-bit aligned.");
 		panic();
 	}*/
 
 	char[20] buf;
 
-	kernel.heap.heap = heap;
-
-	printk(&default_console, "end: ");
+	printk("end: ");
 	itoa(cast(char *) buf, 'x', cast(uint) heap);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "             \n");
+	printk(cast(string) buf);
+	printk("             \n");
 
 	//panic();
 
@@ -73,12 +77,12 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	string local = "local\n";
 	//cons default_console = {0, 0, 80, 25, (cast(ubyte*)0xFFFF_8000_000B_8000)[0..80*25*2]};
 	cls(&default_console);
-	printk(&default_console, "Leaf v1.0\n");
-	printk(&default_console, "Virtual 8086 Mode: ");
+	printk("Leaf v1.0\n");
+	printk("Virtual 8086 Mode: ");
 	if (detect_v86())
-		printk(&default_console, "True\n");
+		printk("True\n");
 	else
-		printk(&default_console, "False\n");
+		printk("False\n");
 	ubyte *vidmem = cast(ubyte*)0xFFFF_8000_000B_8000;
 	test_char = 'A';
 	vidmem[79 * 2] = test_char & 0xFF;
@@ -86,12 +90,12 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 
 	//char[20] buf;
 	/*itoa(cast(char *) buf, 'd', cast(int) &default_console);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");
+	printk(cast(string) buf);
+	printk("\n");
 
 	itoa(cast(char *) buf, 'd', cast(int) &test_char);
-	printk(&default_console, cast(string) buf);
-	printk(&default_console, "\n");*/
+	printk(cast(string) buf);
+	printk("\n");*/
 
 	SetGDTGate(0, 0, 0, 0, 0);                //Null segment
 	SetGDTGate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF); //Code segment
@@ -103,7 +107,7 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	gdtPtr.limit = (GDTEntry.sizeof * 6) - 1;
 	gdtPtr.base = cast(uint) &gdt;
 	load_gdt(&gdtPtr);
-	printk(&default_console, "GDT was set up successfully.\n");
+	printk("GDT was set up successfully.\n");
 
 	LoadTSS();
 
@@ -118,13 +122,13 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	WritePortByte(0xA1, 0x01);
 	WritePortByte(0x21, 0x0);
 	WritePortByte(0xA1, 0x0);
-	printk(&default_console, "PIC was remmaped successfully.\n");
+	printk("PIC was remmaped successfully.\n");
 
 	// Values too high freeze the emulator.
 	// Values too low prints the message too quickly.
 	//InitializeTimer(1193180);
 	InitializeTimer(10);
-	printk(&default_console, "Enabled PIT.\n");
+	printk("Enabled PIT.\n");
 
 	// Initialize the uninitialized gates
 	memset(cast(ubyte *) idt, 0, IDTDescr.sizeof * 256);
@@ -186,42 +190,20 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	idtPtr.limit = (IDTDescr.sizeof * 255) - 1;
 	idtPtr.base = cast(uint) &idt;
 	load_idt(&idtPtr);
-	printk(&default_console, "IDT was set up successfully.\n");
+	printk("IDT was set up successfully.\n");
 
-	/*uint zero = 0;
-	uint division_by_zero = 1/zero;
-	printk(&default_console, "Returned from ISR.\n");*/
-
-	// generate an exception
-	/*ubyte[] m = get_vidmem_slice(&default_console);
-	ubyte out_of_bounds = m[5000];*/
-
-	InitializeHeap();
-	printk(&default_console, "Initialized heap.\n");
+	/*InitializeHeap();
+	printk("Initialized heap.\n");*/
 	EnableInterrupts();
-	printk(&default_console, "Enabled interrupts.\n");
+	printk("Enabled interrupts.\n");
 	InitializePaging(stack);
-	printk(&default_console, "Enabled paging.\n");
-	/*InitializeHeap2();
-	printk(&default_console, "Initialized heap 2.\n");*/
+	printk("Enabled paging.\n");
 
-	/*printk(&default_console, "Allocating first block.\n");
-	uint *a = cast(uint*) kmalloc(8);
-	*a = 0;
-	printk(&default_console, "Allocating second block.\n");
-	uint *b = cast(uint*) kmalloc(8);
-	*b = 0;
-	printk(&default_console, "Freeing first block.\n");
-	kfree(a);
-	printk(&default_console, "Freeing second block.\n");
-	kfree(b);
-	printk(&default_console, "Allocating third block.\n");
-	uint *c = cast(uint *) kmalloc(12);
-	printk(&default_console, "Freeing third block.\n");
-	kfree(c);*/
+	InitializeTasking(stack);
+	printk("Initialized the stack successfuly.\n");
 
 	Serial COM1;
-
+	COM1 = cast(Serial) kmalloc(Serial.sizeof);
 	COM1.initialize(Serial.Port.COM1);
 	printk("Initialized serial port successfully.\n");
 
@@ -232,25 +214,22 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	COM1.writeUByte('\n');
 
 	PCI pci;
-
+	pci = cast(PCI) kmalloc(PCI.sizeof);
 	pci.scanForDevices();
-
-	InitializeTasking(stack);
-	printk(&default_console, "Initialized the stack successfuly.\n");
 
 	CreateInitProcess();
 
 	InitializeHeap2();
-	printk(&default_console, "Initialized heap 2.\n");
+	printk("Initialized heap 2.\n");
 
-	printk(&default_console, "Allocating first block.\n");
+	printk("Allocating first block.\n");
 	uint *a = cast(uint*) kmalloc(4);
 	printk("a positon: ");
 	PrintIntHex(cast(int) a);
 	printk("\n");
 	*a = 0xdeadb33f;
 	//DumpHeap(*kheap);
-	printk(&default_console, "Allocating second block.\n");
+	printk("Allocating second block.\n");
 	uint *b = cast(uint*) kmalloc(4);
 	*b = 0xdeadb33f;
 	//DumpHeap(*kheap);
@@ -263,7 +242,7 @@ extern(C) void main(uint magic, uint addr, uint stack, uint heap)
 	kfree(b);
 	kfree(c);
 
-	printk(&default_console, local);
+	printk(local);
 
 	for (;;) {
 	}
