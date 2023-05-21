@@ -77,9 +77,16 @@ run: kernel.bin
 debug: kernel.bin
 	qemu-system-i386 -s -S -kernel kernel.bin
 
+dependencies:
+	apt-get install $(cat dependencies.list)
+
+test:
+	@echo No tests available.
+
 clean:
 	rm -f cdrom.iso
 	rm -f kernel.bin *.o *.a
 	rm -f isofiles/boot/kernel.bin
 
-.PHONY: run debug clean
+.PHONY: run debug clean dependencies test
+
