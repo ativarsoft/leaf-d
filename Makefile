@@ -78,7 +78,7 @@ debug: kernel.bin
 	qemu-system-i386 -s -S -kernel kernel.bin
 
 dependencies:
-	apt-get install $(cat dependencies.list)
+	apt-get install $(shell cat dependencies.list)
 
 test:
 	@echo No tests available.
