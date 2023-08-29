@@ -40,7 +40,8 @@ D_SOURCES= \
 	kernel.pci.d \
 	kernel.array.d \
 	kernel.ata.d \
-	kernel.tty.d
+	kernel.tty.d \
+        kernel.vector.d
 
 %.o: %.asm
 	nasm -f elf -o $@ $<
