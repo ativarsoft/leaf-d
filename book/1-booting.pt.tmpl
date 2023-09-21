@@ -1,0 +1,26 @@
+<templatizer>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <meta author="Mateus de Lima Oliveira"/>
+    <title>Leaf book</title>
+  </head>
+  <body>
+    <p>
+      O processo de boot começa com uma parte do kernel escrito em linguagem
+      assembly. Assembly é uma linguagem de programação de baixo nível.
+      Linguagens de baixo nível são usadas para se comunicar com o hardware.
+      O kernel é carregado pelo bootloader e a primeira linha de código do
+      kernel a ser executada é a linha marcada com o rótulo com a designação
+      &quot;start&quot;. Essa linha de código se encontra no arquivo
+      &quot;start.asm&quot;.
+    </p>
+    <p>
+      O rótulo start precisa ser exportado como um símbolo para ser encontro
+      pelo linker do compilador. Para fazer isso, usa-se a palavra-chave global
+      da linguagem assembly NASM.
+    </p>
+  </body>
+</html>
+</templatizer>
+
