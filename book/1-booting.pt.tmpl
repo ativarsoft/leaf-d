@@ -31,6 +31,31 @@
       &quot;kernel.main.d&quot; e está escrito na linguagem de programação
       chamada D.
     </p>
+    <p>
+      A função main verifica o número mágico vindo do bootloader
+      primeiramente. Em seguida, a memória é inicializada.
+    </p>
+    <p>
+      Processadores antigos da Intel usavam um método de gerenciamento de
+      memória chamado segmentação. Esta sistema estava no próprio
+      hardware do processador, não em software. Não está no bootloader ou
+      no kernel. Essa funcionalidade de segmentação ainda existe hoje nos
+      processadores que estão sendo produzidos e funciona normalmente mas
+      não é usada pelos sistemas operacionais contemporâneos por se tratar
+      de uma tecnologia que se tornou de certa forma obsoleta na maioria
+      dos casos. Apesar de não ser utilizada, a segmentação deve ser levada
+      em conta pelo núcleo do sistema e inicializada para que o processo de
+      boot continue normalmente.
+    </p>
+    <p>
+      A segmentação de memória dos processadores x86 ainda existe para
+      que os processadores sendo produzidos hoje sejam compatíveis com os
+      modelos anterires. Isso é chamado de backward compatibility
+      (&quot;compatibilidade reversa&quot; em português). A compatibilidade
+      reversa permite que hardware e sistemas operacionais sendo feitos hoje
+      sejam capazes de executar código feitos originalmente para hardware e
+      e sistemas operacionais antigos. 
+    </p>
   </body>
 </html>
 </templatizer>
